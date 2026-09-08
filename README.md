@@ -61,5 +61,5 @@ reservoir sampling. You can safely point this at a dictionary-sized file.
 
 ## Status
 
-Early skeleton. Word selection and the streaming sampler work; see the repo
-for what's planned next.
+Early skeleton. Word selection and the streaming sampler work and are
+covered by unit tests; see the repo for what's planned next.
