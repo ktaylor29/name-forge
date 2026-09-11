@@ -13,8 +13,8 @@ import (
 func main() {
 	count := flag.Int("n", 1, "number of names to generate")
 	sep := flag.String("sep", "-", "separator between words")
-	adjPath := flag.String("adjectives", "", "path to a custom adjective list, one word per line")
-	nounPath := flag.String("nouns", "", "path to a custom noun list, one word per line")
+	adjPath := flag.String("adjectives", "", "path to a custom adjective list, one word per line ('-' for stdin)")
+	nounPath := flag.String("nouns", "", "path to a custom noun list, one word per line ('-' for stdin)")
 	withNumber := flag.Bool("number", true, "append a random number suffix")
 	maxNumber := flag.Int("max", 1000, "exclusive upper bound for the number suffix")
 	seed := flag.Int64("seed", 0, "random seed; 0 derives a seed from the current time")
@@ -26,6 +26,10 @@ func main() {
 	}
 	if *maxNumber < 1 {
 		fmt.Fprintln(os.Stderr, "namegen: -max must be at least 1")
+		os.Exit(1)
+	}
+	if *adjPath == stdinPath && *nounPath == stdinPath {
+		fmt.Fprintln(os.Stderr, "namegen: -adjectives and -nouns can't both read from stdin")
 		os.Exit(1)
 	}
 

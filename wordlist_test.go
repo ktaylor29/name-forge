@@ -8,6 +8,43 @@ import (
 	"testing"
 )
 
+func TestSampleLinesFromReader(t *testing.T) {
+	r := strings.NewReader("a\nb\nc\nd\ne\n")
+	rng := rand.New(rand.NewSource(1))
+
+	got, err := sampleLinesFromReader(r, 3, rng)
+	if err != nil {
+		t.Fatalf("sampleLinesFromReader() error = %v", err)
+	}
+	if len(got) != 3 {
+		t.Fatalf("sampleLinesFromReader() returned %d lines, want 3", len(got))
+	}
+}
+
+func TestSampleLinesReadsFromStdin(t *testing.T) {
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("os.Pipe() error = %v", err)
+	}
+	origStdin := os.Stdin
+	os.Stdin = r
+	defer func() { os.Stdin = origStdin }()
+
+	go func() {
+		w.WriteString("a\nb\nc\n")
+		w.Close()
+	}()
+
+	rng := rand.New(rand.NewSource(1))
+	got, err := sampleLines(stdinPath, 2, rng)
+	if err != nil {
+		t.Fatalf("sampleLines(%q) error = %v", stdinPath, err)
+	}
+	if len(got) != 2 {
+		t.Fatalf("sampleLines(%q) returned %d lines, want 2", stdinPath, len(got))
+	}
+}
+
 func writeWordlist(t *testing.T, lines []string) string {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "words.txt")

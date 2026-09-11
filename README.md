@@ -47,6 +47,16 @@ wordlist and a 5 KB one cost the same amount of memory to sample from -
 only the words that actually end up in the output are held onto, via
 reservoir sampling. You can safely point this at a dictionary-sized file.
 
+Either flag also accepts `-` to read the list from stdin instead of a file,
+which is handy for piping in a filtered or generated list:
+
+```
+grep -v '^#' my-nouns.txt | ./namegen -nouns - -n 3
+```
+
+`-adjectives` and `-nouns` can't both be `-` in the same run, since stdin
+can only be consumed once.
+
 ## Flags
 
 | Flag          | Default | Meaning                                        |
