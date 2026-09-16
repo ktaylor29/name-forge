@@ -12,7 +12,7 @@ func TestBuildNameJoinsAdjectiveAndNoun(t *testing.T) {
 	adjectives := []string{"brave"}
 	nouns := []string{"falcon"}
 
-	got := buildName(rng, adjectives, nouns, "-", false, 1000)
+	got := buildName(rng, adjectives, nouns, "-", false, 1000, FormatKebab)
 	if got != "brave-falcon" {
 		t.Errorf("buildName() = %q, want %q", got, "brave-falcon")
 	}
@@ -23,7 +23,7 @@ func TestBuildNameUsesSeparator(t *testing.T) {
 	adjectives := []string{"brave"}
 	nouns := []string{"falcon"}
 
-	got := buildName(rng, adjectives, nouns, "_", false, 1000)
+	got := buildName(rng, adjectives, nouns, "_", false, 1000, FormatKebab)
 	if got != "brave_falcon" {
 		t.Errorf("buildName() = %q, want %q", got, "brave_falcon")
 	}
@@ -31,7 +31,7 @@ func TestBuildNameUsesSeparator(t *testing.T) {
 
 func TestBuildNameWithoutNumberOmitsSuffix(t *testing.T) {
 	rng := rand.New(rand.NewSource(1))
-	got := buildName(rng, []string{"brave"}, []string{"falcon"}, "-", false, 1000)
+	got := buildName(rng, []string{"brave"}, []string{"falcon"}, "-", false, 1000, FormatKebab)
 	if strings.Count(got, "-") != 1 {
 		t.Errorf("buildName() = %q, want exactly one separator with -number=false", got)
 	}
@@ -40,7 +40,7 @@ func TestBuildNameWithoutNumberOmitsSuffix(t *testing.T) {
 func TestBuildNameWithNumberAppendsBoundedSuffix(t *testing.T) {
 	rng := rand.New(rand.NewSource(1))
 	for i := 0; i < 200; i++ {
-		got := buildName(rng, []string{"brave"}, []string{"falcon"}, "-", true, 5)
+		got := buildName(rng, []string{"brave"}, []string{"falcon"}, "-", true, 5, FormatKebab)
 		parts := strings.Split(got, "-")
 		if len(parts) != 3 {
 			t.Fatalf("buildName() = %q, want 3 parts separated by -", got)
@@ -58,6 +58,25 @@ func TestBuildNameWithNumberAppendsBoundedSuffix(t *testing.T) {
 	}
 }
 
+func TestBuildNameCamelFormatHasNoSeparators(t *testing.T) {
+	rng := rand.New(rand.NewSource(1))
+	got := buildName(rng, []string{"brave"}, []string{"falcon"}, "-", true, 5, FormatCamel)
+	if !strings.HasPrefix(got, "braveFalcon") {
+		t.Errorf("buildName() = %q, want prefix %q", got, "braveFalcon")
+	}
+	if strings.Contains(got, "-") {
+		t.Errorf("buildName() = %q, want no separators in camel format", got)
+	}
+}
+
+func TestBuildNameTitleFormatCapitalizesEachWord(t *testing.T) {
+	rng := rand.New(rand.NewSource(1))
+	got := buildName(rng, []string{"brave"}, []string{"falcon"}, "-", false, 1000, FormatTitle)
+	if got != "Brave-Falcon" {
+		t.Errorf("buildName() = %q, want %q", got, "Brave-Falcon")
+	}
+}
+
 func TestBuildNamePicksFromWholeList(t *testing.T) {
 	rng := rand.New(rand.NewSource(42))
 	adjectives := []string{"amber", "brave", "calm"}
@@ -66,7 +85,7 @@ func TestBuildNamePicksFromWholeList(t *testing.T) {
 	seenAdj := map[string]bool{}
 	seenNoun := map[string]bool{}
 	for i := 0; i < 200; i++ {
-		got := buildName(rng, adjectives, nouns, "-", false, 1000)
+		got := buildName(rng, adjectives, nouns, "-", false, 1000, FormatKebab)
 		parts := strings.SplitN(got, "-", 2)
 		seenAdj[parts[0]] = true
 		seenNoun[parts[1]] = true

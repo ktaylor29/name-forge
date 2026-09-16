@@ -32,6 +32,19 @@ Change the separator or drop the numeric suffix:
 gentle_orchard
 ```
 
+Change the casing with `-format`:
+
+```
+./namegen -format camel
+braveFalcon742
+
+./namegen -format title
+Brave-Falcon-742
+```
+
+`camel` ignores `-sep` entirely, since camelCase has no separators by
+definition. `title` and the default `kebab` both still honor `-sep`.
+
 ### Custom wordlists
 
 By default the tool uses a small built-in list of adjectives and nouns. You
@@ -68,6 +81,7 @@ can only be consumed once.
 | `-number`     | `true`  | append a random number suffix                   |
 | `-max`        | `1000`  | exclusive upper bound for the number suffix     |
 | `-seed`       | `0`     | random seed; `0` derives one from the clock      |
+| `-format`     | `kebab` | output casing: `kebab`, `camel`, or `title`      |
 
 ## Status
 

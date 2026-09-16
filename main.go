@@ -18,6 +18,7 @@ func main() {
 	withNumber := flag.Bool("number", true, "append a random number suffix")
 	maxNumber := flag.Int("max", 1000, "exclusive upper bound for the number suffix")
 	seed := flag.Int64("seed", 0, "random seed; 0 derives a seed from the current time")
+	format := flag.String("format", FormatKebab, "output format: kebab, camel, or title")
 	flag.Parse()
 
 	if *count < 1 {
@@ -26,6 +27,12 @@ func main() {
 	}
 	if *maxNumber < 1 {
 		fmt.Fprintln(os.Stderr, "namegen: -max must be at least 1")
+		os.Exit(1)
+	}
+	switch *format {
+	case FormatKebab, FormatCamel, FormatTitle:
+	default:
+		fmt.Fprintf(os.Stderr, "namegen: -format must be one of kebab, camel, title (got %q)\n", *format)
 		os.Exit(1)
 	}
 	if *adjPath == stdinPath && *nounPath == stdinPath {
@@ -60,6 +67,6 @@ func main() {
 	}
 
 	for i := 0; i < *count; i++ {
-		fmt.Println(buildName(rng, adjectives, nouns, *sep, *withNumber, *maxNumber))
+		fmt.Println(buildName(rng, adjectives, nouns, *sep, *withNumber, *maxNumber, *format))
 	}
 }
