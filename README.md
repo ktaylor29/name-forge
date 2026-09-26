@@ -70,6 +70,16 @@ grep -v '^#' my-nouns.txt | ./namegen -nouns - -n 3
 `-adjectives` and `-nouns` can't both be `-` in the same run, since stdin
 can only be consumed once.
 
+Avoid repeats within a single run with `-unique`:
+
+```
+./namegen -n 5 -unique
+```
+
+`-unique` rejects the run up front if `-n` asks for more names than the
+wordlists and `-max` can actually produce (e.g. two one-word lists with
+`-number=false` can only ever make one name).
+
 ## Flags
 
 | Flag          | Default | Meaning                                        |
@@ -82,6 +92,7 @@ can only be consumed once.
 | `-max`        | `1000`  | exclusive upper bound for the number suffix     |
 | `-seed`       | `0`     | random seed; `0` derives one from the clock      |
 | `-format`     | `kebab` | output casing: `kebab`, `camel`, or `title`      |
+| `-unique`     | `false` | never print the same name twice in one run      |
 
 ## Status
 

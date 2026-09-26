@@ -65,6 +65,36 @@ func buildName(rng *rand.Rand, adjectives, nouns []string, sep string, withNumbe
 	return name
 }
 
+// maxUniqueTries bounds how many times buildUniqueName will re-roll a
+// collision before giving up. combosLeft (below) already rejects requests
+// that are mathematically impossible, so this is just a safety net against
+// pathological runs of bad luck.
+const maxUniqueTries = 10000
+
+// combos returns how many distinct names buildName can produce from the
+// given inputs, so callers can reject a -n/-unique combination that can
+// never be satisfied instead of retrying forever.
+func combos(adjectives, nouns []string, withNumber bool, maxNumber int) int {
+	n := len(adjectives) * len(nouns)
+	if withNumber {
+		n *= maxNumber
+	}
+	return n
+}
+
+// buildUniqueName is buildName plus rejection sampling against seen, so a
+// single run never prints the same name twice. It mutates seen on success.
+func buildUniqueName(rng *rand.Rand, adjectives, nouns []string, sep string, withNumber bool, maxNumber int, format string, seen map[string]bool) (string, error) {
+	for i := 0; i < maxUniqueTries; i++ {
+		name := buildName(rng, adjectives, nouns, sep, withNumber, maxNumber, format)
+		if !seen[name] {
+			seen[name] = true
+			return name, nil
+		}
+	}
+	return "", fmt.Errorf("could not find a new unique name after %d tries", maxUniqueTries)
+}
+
 // capitalize upper-cases the first rune of s and leaves the rest alone, so
 // words with non-ASCII first letters still work.
 func capitalize(s string) string {

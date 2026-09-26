@@ -19,6 +19,7 @@ func main() {
 	maxNumber := flag.Int("max", 1000, "exclusive upper bound for the number suffix")
 	seed := flag.Int64("seed", 0, "random seed; 0 derives a seed from the current time")
 	format := flag.String("format", FormatKebab, "output format: kebab, camel, or title")
+	unique := flag.Bool("unique", false, "never print the same name twice in one run")
 	flag.Parse()
 
 	if *count < 1 {
@@ -64,6 +65,23 @@ func main() {
 			os.Exit(1)
 		}
 		nouns = list
+	}
+
+	if *unique {
+		if n := combos(adjectives, nouns, *withNumber, *maxNumber); *count > n {
+			fmt.Fprintf(os.Stderr, "namegen: -unique can produce at most %d distinct names with the current wordlists/-max, but -n is %d\n", n, *count)
+			os.Exit(1)
+		}
+		seen := make(map[string]bool, *count)
+		for i := 0; i < *count; i++ {
+			name, err := buildUniqueName(rng, adjectives, nouns, *sep, *withNumber, *maxNumber, *format, seen)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "namegen: %v\n", err)
+				os.Exit(1)
+			}
+			fmt.Println(name)
+		}
+		return
 	}
 
 	for i := 0; i < *count; i++ {

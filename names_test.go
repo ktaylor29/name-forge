@@ -77,6 +77,50 @@ func TestBuildNameTitleFormatCapitalizesEachWord(t *testing.T) {
 	}
 }
 
+func TestCombosMultipliesListsAndNumberRange(t *testing.T) {
+	adjectives := []string{"amber", "brave", "calm"}
+	nouns := []string{"badger", "canyon"}
+
+	if got, want := combos(adjectives, nouns, false, 1000), 6; got != want {
+		t.Errorf("combos() = %d, want %d", got, want)
+	}
+	if got, want := combos(adjectives, nouns, true, 10), 60; got != want {
+		t.Errorf("combos() = %d, want %d", got, want)
+	}
+}
+
+func TestBuildUniqueNameNeverRepeats(t *testing.T) {
+	rng := rand.New(rand.NewSource(1))
+	adjectives := []string{"amber", "brave", "calm"}
+	nouns := []string{"badger", "canyon"}
+	total := combos(adjectives, nouns, false, 1000)
+
+	seen := map[string]bool{}
+	for i := 0; i < total; i++ {
+		name, err := buildUniqueName(rng, adjectives, nouns, "-", false, 1000, FormatKebab, seen)
+		if err != nil {
+			t.Fatalf("buildUniqueName() error = %v on draw %d", err, i)
+		}
+		if _, ok := seen[name]; !ok {
+			t.Fatalf("buildUniqueName() returned %q but didn't record it in seen", name)
+		}
+	}
+	if len(seen) != total {
+		t.Errorf("buildUniqueName() produced %d distinct names, want %d", len(seen), total)
+	}
+}
+
+func TestBuildUniqueNameErrorsWhenSpaceExhausted(t *testing.T) {
+	rng := rand.New(rand.NewSource(1))
+	adjectives := []string{"brave"}
+	nouns := []string{"falcon"}
+	seen := map[string]bool{"brave-falcon": true}
+
+	if _, err := buildUniqueName(rng, adjectives, nouns, "-", false, 1000, FormatKebab, seen); err == nil {
+		t.Error("buildUniqueName() error = nil, want error when only possible name is already seen")
+	}
+}
+
 func TestBuildNamePicksFromWholeList(t *testing.T) {
 	rng := rand.New(rand.NewSource(42))
 	adjectives := []string{"amber", "brave", "calm"}
