@@ -93,6 +93,23 @@ wordlists and `-max` can actually produce (e.g. two one-word lists with
 | `-seed`       | `0`     | random seed; `0` derives one from the clock      |
 | `-format`     | `kebab` | output casing: `kebab`, `camel`, or `title`      |
 | `-unique`     | `false` | never print the same name twice in one run      |
+| `-version`    | `false` | print the version and exit                      |
+
+## Releases
+
+Releases are built with [goreleaser](https://goreleaser.com) from
+`.goreleaser.yaml`. It runs the tests, then builds static binaries for
+linux, darwin and windows on amd64 and arm64, and writes archives plus a
+checksums file to `dist/`. To check the config and build locally without
+publishing:
+
+```
+goreleaser release --snapshot --clean
+```
+
+To cut a real release, tag the commit and run `goreleaser release --clean`
+with `GITHUB_TOKEN` set. Binaries report the tag from `namegen -version`;
+a plain `go build` reports `dev`.
 
 ## Status
 

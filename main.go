@@ -10,7 +10,11 @@ import (
 	"time"
 )
 
+// version is set at release time by goreleaser via -ldflags.
+var version = "dev"
+
 func main() {
+	showVersion := flag.Bool("version", false, "print the version and exit")
 	count := flag.Int("n", 1, "number of names to generate")
 	sep := flag.String("sep", "-", "separator between words")
 	adjPath := flag.String("adjectives", "", "path to a custom adjective list, one word per line ('-' for stdin)")
@@ -21,6 +25,11 @@ func main() {
 	format := flag.String("format", FormatKebab, "output format: kebab, camel, or title")
 	unique := flag.Bool("unique", false, "never print the same name twice in one run")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println("namegen", version)
+		return
+	}
 
 	if *count < 1 {
 		fmt.Fprintln(os.Stderr, "namegen: -n must be at least 1")
